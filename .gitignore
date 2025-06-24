@@ -1,0 +1,85 @@
+# ================================
+# Java & Gradle
+# ================================
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.log.*
+*.tmp
+*.bak
+/build/
+/target/
+out/
+
+# ================================
+# IntelliJ IDEA
+# ================================
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+out/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/runConfigurations/
+
+# ================================
+# OS-specific
+# ================================
+.DS_Store
+Thumbs.db
+
+# ================================
+# Spring Boot specific
+# ================================
+/application.properties
+/application.yml
+/application-*.properties
+/application-*.yml
+*.env
+*.env.local
+
+# ================================
+# Logs
+# ================================
+logs/
+*.log
+*.log.gz
+
+# ================================
+# Gradle Wrapper
+# ================================
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ================================
+# Temporary files
+# ================================
+*.swp
+*~ 
+*.bak
+
+# ================================
+# Other IDEs
+# ================================
+.vscode/
+*.code-workspace
+
+# ================================
+# Mac OS
+# ================================
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# ================================
+# JetBrains Project files
+# ================================
+*.iml
+*.ipr
+*.iws
+*.idea/
+*.idea_modules/
