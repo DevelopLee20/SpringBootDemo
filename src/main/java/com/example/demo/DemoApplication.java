@@ -1,6 +1,10 @@
 package com.example.demo;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,12 +26,16 @@ public class DemoApplication {
 
 @Getter // 게터를 롬복에서 사용
 @Setter // 세터를 롬복에서 사용
+//@NoArgsConstructor
 class Coffee {
     private final String id;    // 상수 id
     private String name;        // 이름
 
     // 생성자
-    public Coffee(String id, String name) {
+    // JsonCreator: final로 선언된 id도 setter 사용 가능
+    // JsonProperty: JSON으로 객체를 바꾸라고 요청하는 것
+    @JsonCreator
+    public Coffee(@JsonProperty("id") String id, @JsonProperty("name") String name) {
         this.id = id;
         this.name = name;
     }
@@ -39,11 +47,11 @@ class Coffee {
 }
 
 // MVC를 연결하는 어노테이션
-@RestController
 // 중복되는 /coffees 를 @RequestMapping 에 작성
+@RestController
 @RequestMapping("/coffees")
 class RestApiDemoController {
-    private final List<Coffee> coffees = new ArrayList<>();
+    private List<Coffee> coffees = new ArrayList<>();
 
     // 생성자
     public RestApiDemoController() {
@@ -69,14 +77,14 @@ class RestApiDemoController {
         return Optional.empty();    // 없으면 빈 객체 반환(Optional 이라 빈 객체가 허용된다)
     }
 
-    @PostMapping("/")
+    @PostMapping
     Coffee postCoffee(@RequestBody Coffee coffee) {
         coffees.add(coffee); // coffee 추가
         return coffee;
     }
 
-    @PutMapping("/{id}")
 //    Coffee putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
+    @PutMapping("/{id}")
     ResponseEntity<Coffee> putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
         int coffeeIdx = -1;
 
