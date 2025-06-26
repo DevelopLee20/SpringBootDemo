@@ -12,6 +12,7 @@
 /build/
 /target/
 out/
+*.bin
 
 # ================================
 # IntelliJ IDEA
