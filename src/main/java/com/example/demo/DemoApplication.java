@@ -124,10 +124,11 @@ class RestApiDemoController {
 //    Coffee putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
         // ResponseEntity<Coffee>를 반환하는 이유? 수정과 생성을 상태 코드로 명확히 구분하기 위해서
     ResponseEntity<Coffee> putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
-        return (!coffeeRepository.existsById(id))
+        return (coffeeRepository.existsById(id))
                 ? new ResponseEntity<>(coffeeRepository.save(coffee),
-                HttpStatus.CREATED)
-                : new ResponseEntity<>(coffeeRepository.save(coffee), HttpStatus.OK);
+                HttpStatus.OK)
+                : new ResponseEntity<>(coffeeRepository.save(coffee),
+                HttpStatus.CREATED);
 //        int coffeeIdx = -1;
 //
 //        for (Coffee c : coffees) {
