@@ -1,9 +1,16 @@
 package com.example.demo;
 
+<<<<<<< HEAD
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+=======
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+>>>>>>> ccd73301370726594264e1f6f11f9f99ac7adb32
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,7 +38,11 @@ public class DemoApplication {
 // 이 클래스를 엔티티로 사용: 데이터베이스 테이블과 매핑된다는 의미의 JPA 어노테이션
 @Getter // 게터를 롬복에서 사용
 @Setter // 세터를 롬복에서 사용
+<<<<<<< HEAD
 @Entity
+=======
+//@NoArgsConstructor
+>>>>>>> ccd73301370726594264e1f6f11f9f99ac7adb32
 class Coffee {
     // @Id DB 필드의 ID 표시
     @Id
@@ -39,7 +50,10 @@ class Coffee {
     private String name;        // 이름
 
     // 생성자
-    public Coffee(String id, String name) {
+    // JsonCreator: final로 선언된 id도 setter 사용 가능
+    // JsonProperty: JSON으로 객체를 바꾸라고 요청하는 것
+    @JsonCreator
+    public Coffee(@JsonProperty("id") String id, @JsonProperty("name") String name) {
         this.id = id;
         this.name = name;
     }
@@ -74,12 +88,16 @@ class DataLoader {
 }
 
 // MVC를 연결하는 어노테이션
-@RestController
 // 중복되는 /coffees 를 @RequestMapping 에 작성
+@RestController
 @RequestMapping("/coffees")
 class RestApiDemoController {
+<<<<<<< HEAD
     //    private final List<Coffee> coffees = new ArrayList<>();
     private final CoffeeRepository coffeeRepository;
+=======
+    private List<Coffee> coffees = new ArrayList<>();
+>>>>>>> ccd73301370726594264e1f6f11f9f99ac7adb32
 
     // 생성자
     public RestApiDemoController(CoffeeRepository coffeeRepository) {
@@ -113,16 +131,23 @@ class RestApiDemoController {
 //        return Optional.empty();    // 없으면 빈 객체 반환(Optional 이라 빈 객체가 허용된다)
     }
 
+<<<<<<< HEAD
     @PostMapping()
+=======
+    @PostMapping
+>>>>>>> ccd73301370726594264e1f6f11f9f99ac7adb32
     Coffee postCoffee(@RequestBody Coffee coffee) {
         return coffeeRepository.save(coffee);
 //        coffees.add(coffee); // coffee 추가
 //        return coffee;
     }
 
-    @PutMapping("/{id}")
 //    Coffee putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
+<<<<<<< HEAD
         // ResponseEntity<Coffee>를 반환하는 이유? 수정과 생성을 상태 코드로 명확히 구분하기 위해서
+=======
+    @PutMapping("/{id}")
+>>>>>>> ccd73301370726594264e1f6f11f9f99ac7adb32
     ResponseEntity<Coffee> putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
         return (coffeeRepository.existsById(id))
                 ? new ResponseEntity<>(coffeeRepository.save(coffee),
