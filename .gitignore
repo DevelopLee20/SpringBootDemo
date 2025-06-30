@@ -55,6 +55,8 @@ logs/
 # ================================
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
+gradle-wrapper.jar
+gradle-wrapper.properties
 
 # ================================
 # Temporary files
