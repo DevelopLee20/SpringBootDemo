@@ -7,9 +7,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,31 +25,44 @@ import java.util.UUID;
 interface CoffeeRepository extends CrudRepository<Coffee, String> {
 }
 
+
+// @ConfigurationPropertiesScan: main이 application.properties를 스캔하도록 설정한다.
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
 }
 
+// @ConfigurationProperties: prefix 값으로 클래스 속성을 변경 가능하게 한다.
+// 이때 setter가 존재해야 한다.
+@Getter
+@Setter
+@ConfigurationProperties(prefix = "greeting")
+class Greeting {
+    private String name;
+    private String coffee;
+}
+
 @RestController
 @RequestMapping("/greeting")
 class GreetingController {
-    // lombok의 value 랑은 다른 것임 주의!!
-    @Value("${greeting-name: NoLee}")
-    private String name;    // @Value 어노테이션으로 application.properties에서 값을 가져옴
+    private final Greeting greeting; // Greeting Bean(빈)
 
-    @Value("${greeting-coffee: ${greeting-name} is drinking Cafe Lee}")
-    private String coffee;  // @Value 어노테이션으로 application.properties에서 값을 가져옴
+    // 생성자
+    public GreetingController(Greeting greeting) {
+        this.greeting = greeting;
+    }
 
     @GetMapping
     String getGreeting() {
-        return name;
+        return greeting.getName();
     }
 
     @GetMapping("/coffee")
     String getCoffee() {
-        return coffee;
+        return greeting.getCoffee();
     }
 }
 

@@ -33,6 +33,9 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // H2 DB 의존성 추가
     runtimeOnly 'com.h2database:h2'
+    // @ConfigurationProperties를 사용하기 위한 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }
 
 tasks.named('test') {
