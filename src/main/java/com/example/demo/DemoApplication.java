@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.repository.CrudRepository;
@@ -27,6 +28,27 @@ interface CoffeeRepository extends CrudRepository<Coffee, String> {
 public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+@RestController
+@RequestMapping("/greeting")
+class GreetingController {
+    // lombok의 value 랑은 다른 것임 주의!!
+    @Value("${greeting-name: NoLee}")
+    private String name;    // @Value 어노테이션으로 application.properties에서 값을 가져옴
+
+    @Value("${greeting-coffee: ${greeting-name} is drinking Cafe Lee}")
+    private String coffee;  // @Value 어노테이션으로 application.properties에서 값을 가져옴
+
+    @GetMapping
+    String getGreeting() {
+        return name;
+    }
+
+    @GetMapping("/coffee")
+    String getCoffee() {
+        return coffee;
     }
 }
 
