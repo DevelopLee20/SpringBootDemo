@@ -36,6 +36,8 @@ dependencies {
     // @ConfigurationProperties를 사용하기 위한 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    // 액추에이터 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {
