@@ -11,6 +11,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,35 @@ interface CoffeeRepository extends CrudRepository<Coffee, String> {
 public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
+    }
+
+    //    @Bean 빈 생성
+    // 외부에서 빈 생성 후 @ConfigurationProperties 사용
+    @Bean
+    @ConfigurationProperties(prefix = "droid")
+    Droid createDroid() {
+        return new Droid();
+    }
+}
+
+@Getter
+@Setter
+class Droid {
+    private String id, description;
+}
+
+@RestController
+@RequestMapping("/droid")
+class DroidController {
+    private final Droid droid;
+
+    public DroidController(Droid droid) {
+        this.droid = droid;
+    }
+
+    @GetMapping
+    Droid getDroid() {
+        return droid;
     }
 }
 
