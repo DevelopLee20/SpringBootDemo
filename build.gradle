@@ -38,6 +38,10 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     // 액추에이터 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // 웹플럭스 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // 레디스 DB 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 }
 
 tasks.named('test') {
