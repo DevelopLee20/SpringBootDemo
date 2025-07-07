@@ -12,11 +12,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
 import java.util.List;
@@ -37,7 +45,7 @@ interface CoffeeRepository extends CrudRepository<Coffee, String> {
 @ConfigurationPropertiesScan
 public class DemoApplication {
     public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+        SpringApplication.run(DemoApplication.class, args); // 애플리케이션 실행
     }
 
     //    @Bean 빈 생성
@@ -47,14 +55,63 @@ public class DemoApplication {
     Droid createDroid() {
         return new Droid();
     }
+
+    //    @Bean : Redis 연동을 위한 RedisOperations Bean(빈) 생성
+    @Bean
+    public RedisOperations<String, Aircraft> redisOperations(RedisConnectionFactory factory) {
+        // 객체를 JSON 형태로 직렬화/역직렬화 하기 위한 설정
+        Jackson2JsonRedisSerializer<Aircraft> serializer = new Jackson2JsonRedisSerializer<>(Aircraft.class);
+
+        // RedisTemplate: Redis와 데이터 입/출력을 담당
+        RedisTemplate<String, Aircraft> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);                 // Redis 연결 설정
+        template.setDefaultSerializer(serializer);              // Jackson에 의한 값 직렬화
+        template.setKeySerializer(new StringRedisSerializer()); // 키 직렬화 -> 문자열
+
+        return template;    // RedisOperations: Redis에 값 저장 및 조회 가능
+    }
 }
 
-// Chapter 6
+@EnableScheduling   // 이 클래스를 스케줄링(주기적인 작업) 등록
+@Component          // 스프링이 빈으로 자동 등록하도록 함
+class PlaneFinderPoller {
+    private final RedisConnectionFactory connectionFactory;                                 // Redis 연결
+    private final RedisOperations<String, Aircraft> redisOperations;                        // Redis 조작 인터페이스
+    // 비동기 방식으로 외부 API 호출하는 WebFlux
+    private final WebClient client = WebClient.create("https://localhost:7634/aircraft");
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+    // 생성자
+    PlaneFinderPoller(RedisConnectionFactory connectionFactory,
+                      RedisOperations<String, Aircraft> redisOperations) {
+        this.connectionFactory = connectionFactory;
+        this.redisOperations = redisOperations;
+    }
+
+    @Scheduled(fixedRate = 5000) // 5초(5000ms) 마다 실행, 스케줄링에 의해 실행됨
+    private void pollPlanes() {
+        // Redis DB 초기화
+        connectionFactory.getConnection().serverCommands().flushDb();
+
+        client.get()                                            // GET 요청
+                .retrieve()                                     // 응답 받기
+                .bodyToFlux(Aircraft.class)                     // JSON 응답을 Aircraft 리스트로 반환(Flux는 stream 형식)
+                .filter(plane -> !plane.getReg()
+                        .isEmpty()
+                ).toStream()                                    // Java Stream으로 변환
+                .forEach(ac -> redisOperations.opsForValue().set(ac.getReg(), ac)); // Redis에 등록번호를 key로 저장
+
+        // 저장된 데이터를 모두 꺼내서 출력
+        redisOperations.opsForValue()
+                .getOperations()
+                .keys("*")
+                .forEach(ac -> System.out.println(redisOperations.opsForValue().get(ac)));
+    }
+}
+
+@Data // getter, setter, toString, equals 등을 자동 생성
+@NoArgsConstructor // 기본 생성자 자동 생성
+@AllArgsConstructor // 모든 필드를 파라미터로 받는 생성자 생성
+@JsonIgnoreProperties(ignoreUnknown = true) // JSON에 정의되지 않은 필드는 무시
 class Aircraft {
     @Id
     private Long id;
@@ -62,7 +119,7 @@ class Aircraft {
     private int altitude, heading, speed;
 
     // @JsonProperty: Json 형식으로 객체를 바꾸라고 요청하는 것
-    @JsonProperty("vert_rate")
+    @JsonProperty("vert_rate")  // JSON의 vert_rate -> vertRate로 배핑
     private int vertRate;
 
     @JsonProperty("selected_altitude")
@@ -92,6 +149,7 @@ class Aircraft {
         return lastSeenTime.toString();
     }
 
+    // String을 int로 변환하는 getter/setter
     public void setLastSeenTime(String lastSeenTime) {
         if (null != lastSeenTime) {
             this.lastSeenTime = Instant.parse(lastSeenTime);
