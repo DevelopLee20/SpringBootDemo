@@ -1,12 +1,12 @@
 package com.example.demo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,10 @@ import java.util.UUID;
 interface CoffeeRepository extends CrudRepository<Coffee, String> {
 }
 
+// @Data equals(), hashCode(), toString() 메서드를 생성해 데이터 클래스를 만들어준다.
+// @NoArgsConstructor 롬복에 매개변수 없는 생성자를 생성하도록 지시
+// @AllArgsConstructor 롬복에 각 멤버 변수의 매개변수를 가진 생성자를 만들도록 지시
+// @JsonIgnoreProperties(ignoreUnknown = true) 응답 필드 중 멤버 변수가 없으면, 역직렬화시 이를 무시하도록 지시
 
 // @ConfigurationPropertiesScan: main이 application.properties를 스캔하도록 설정한다.
 @SpringBootApplication
@@ -41,6 +46,84 @@ public class DemoApplication {
     @ConfigurationProperties(prefix = "droid")
     Droid createDroid() {
         return new Droid();
+    }
+}
+
+// Chapter 6
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Aircraft {
+    @Id
+    private Long id;
+    private String callsign, squawk, reg, flightno, route, type, category;
+    private int altitude, heading, speed;
+
+    // @JsonProperty: Json 형식으로 객체를 바꾸라고 요청하는 것
+    @JsonProperty("vert_rate")
+    private int vertRate;
+
+    @JsonProperty("selected_altitude")
+    private int selectedAltitude;
+    private double lat, lon, barometer;
+
+    @JsonProperty("polar_distance")
+    private double polarDistance;
+
+    @JsonProperty("is_adsb")
+    private boolean isADSB;
+
+    @JsonProperty("is_on_ground")
+    private boolean isOnGround;
+
+    // Instant: 정확한 시간 시점 객체(정리: 상수처럼 쓰일 시간 의미)
+    @JsonProperty("last_seen_time")
+    private Instant lastSeenTime;
+
+    @JsonProperty("pos_update_time")
+    private Instant posUpdateTime;
+
+    @JsonProperty("bds40_seen_time")
+    private Instant bds40SeenTime;
+
+    public String getLastSeenTime() {
+        return lastSeenTime.toString();
+    }
+
+    public void setLastSeenTime(String lastSeenTime) {
+        if (null != lastSeenTime) {
+            this.lastSeenTime = Instant.parse(lastSeenTime);
+        } else {
+            // Instant.ofEpochSecond(time); 1970년 1월 1일 0시 0분 0초 기준 time 초 후 시간을 반환
+            // 반환된 데이터는 Instant 타입을 가진다.
+            this.lastSeenTime = Instant.ofEpochSecond(0);
+        }
+    }
+
+    public String getPosUpdateTime() {
+        return posUpdateTime.toString();
+    }
+
+    public void setPosUpdateTime(String posUpdateTime) {
+        if (null != posUpdateTime) {
+            this.posUpdateTime = Instant.parse(posUpdateTime);
+        } else {
+            this.posUpdateTime = Instant.ofEpochSecond(0);
+        }
+    }
+
+    public String getBds40SeenTime() {
+        return bds40SeenTime.toString();
+    }
+
+    public void setBds40SeenTime(String bds40SeenTime) {
+        if (null != bds40SeenTime) {
+            this.bds40SeenTime = Instant.parse(bds40SeenTime);
+        } else {
+            this.bds40SeenTime = Instant.ofEpochSecond(0);
+        }
     }
 }
 
