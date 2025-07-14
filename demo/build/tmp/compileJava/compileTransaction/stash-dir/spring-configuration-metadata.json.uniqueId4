@@ -1,0 +1,41 @@
+{
+  "groups": [
+    {
+      "name": "droid",
+      "type": "com.example.demo.Droid",
+      "sourceType": "com.example.demo.DemoApplication",
+      "sourceMethod": "createDroid()"
+    },
+    {
+      "name": "greeting",
+      "type": "com.example.demo.Greeting",
+      "sourceType": "com.example.demo.Greeting"
+    }
+  ],
+  "properties": [
+    {
+      "name": "droid.description",
+      "type": "java.lang.String",
+      "sourceType": "com.example.demo.Droid"
+    },
+    {
+      "name": "droid.id",
+      "type": "java.lang.String",
+      "sourceType": "com.example.demo.Droid"
+    },
+    {
+      "name": "greeting.coffee",
+      "type": "java.lang.String",
+      "sourceType": "com.example.demo.Greeting"
+    },
+    {
+      "name": "greeting.name",
+      "type": "java.lang.String",
+      "sourceType": "com.example.demo.Greeting"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}
